@@ -2,6 +2,7 @@ node_modules/
 test-results/
 playwright-report/
 playwright/.cache/
+sdet-portfolio-45min-plan.md
 
 # Local environment config — never commit. Use .env.example as the template.
 .env
