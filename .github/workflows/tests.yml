@@ -1,0 +1,49 @@
+name: Automation Test Suite
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Nightly regression run — demonstrates scheduled/regression execution, not just PR gating
+    - cron: '0 18 * * *'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    # Config is injected from GitHub Secrets, never from a committed .env file.
+    # Each falls back to the default in config/env.ts when the secret is unset,
+    # so a fork without secrets configured still runs green.
+    env:
+      TEST_ENV: ${{ secrets.TEST_ENV }}
+      BASE_URL: ${{ secrets.BASE_URL }}
+      TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run API tests
+        run: npx playwright test --project=api
+
+      - name: Run E2E tests
+        run: npx playwright test --project=e2e
+
+      - name: Upload HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14

@@ -1,0 +1,18 @@
+{
+  "name": "sdet-portfolio-automationexercise",
+  "version": "1.0.0",
+  "description": "SDET portfolio project: UI + API automation framework for automationexercise.com",
+  "scripts": {
+    "test": "playwright test",
+    "test:api": "playwright test tests/api",
+    "test:e2e": "playwright test tests/e2e",
+    "test:headed": "playwright test --headed",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "@types/node": "^26.1.1",
+    "dotenv": "^17.4.2",
+    "typescript": "^5.5.0"
+  }
+}

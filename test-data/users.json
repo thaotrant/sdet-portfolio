@@ -1,0 +1,24 @@
+{
+  "invalidUser": {
+    "email": "not_a_real_user_9182@example.com",
+    "password": "WrongPass123!"
+  },
+  "newUserTemplate": {
+    "name": "QA Portfolio Tester",
+    "email_prefix": "sdet.portfolio.",
+    "title": "Mr",
+    "birth_date": "15",
+    "birth_month": "6",
+    "birth_year": "1995",
+    "firstname": "QA",
+    "lastname": "Tester",
+    "company": "Portfolio Project",
+    "address1": "123 Test Street",
+    "address2": "",
+    "country": "Vietnam",
+    "zipcode": "700000",
+    "state": "Ho Chi Minh",
+    "city": "Ho Chi Minh City",
+    "mobile_number": "0900000000"
+  }
+}
