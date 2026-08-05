@@ -42,4 +42,10 @@ export class Homepage {
     await productCard.hover();
     await productCard.locator('a.add-to-cart').first().click();
   }
+
+  async viewProductByName(productName: string) {
+    const productCard = this.page.locator('.product-image-wrapper').filter({ hasText: productName }).first();
+    await productCard.hover();
+    await productCard.getByRole('link', { name: /view product/i }).click();
+  }
 }

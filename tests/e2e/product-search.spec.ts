@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { ProductsPage } from '../../pages/ProductsPage';
 import { CartPage } from '../../pages/CartPage';
+import { Homepage } from '../../pages/Homepage';
+import { ProductDetailsPage } from '../../pages/ProductDetailsPage';
 
 test.describe('Product search and cart (E2E)', () => {
   test('searching for a product shows matching results', async ({ page }) => {
@@ -40,5 +42,21 @@ test.describe('Product search and cart (E2E)', () => {
     }
 
     await removeProductFromCartByName('Sleeveless Dress');
+  });
+
+  test('adding a product to cart from the product details page shows it in the cart', async ({ page }) => {
+    const homepage = new Homepage(page);
+    const detailsPage = new ProductDetailsPage(page);
+    const cartPage = new CartPage(page);
+
+    await homepage.goto();
+    await homepage.viewProductByName('Summer White Top');
+
+    await expect(detailsPage.productName).toHaveText('Summer White Top');
+
+    await detailsPage.addToCart();
+    await detailsPage.openCartFromModal();
+
+    await expect(cartPage.getCartRows().filter({ hasText: 'Summer White Top' })).toBeVisible();
   });
 });
