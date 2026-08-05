@@ -42,4 +42,10 @@ export class ProductsPage {
   async openCartFromModal() {
     await this.viewCartInModalLink.click();
   }
+
+  async viewProductByName(productName: string) {
+    const productCard = this.productItems.filter({ hasText: productName }).first();
+    await productCard.hover();
+    await productCard.getByRole('link', { name: /view product/i }).click();
+  }
 }
