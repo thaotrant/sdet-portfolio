@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import userData from '../../test-data/users.json';
 import { env } from '../../config/env';
+import { safeJson } from '../../utils/api-response';
 
 /**
  * Covers the account lifecycle documented at /api_list:
@@ -15,7 +16,7 @@ test.describe('Account API lifecycle', () => {
         password: userData.invalidUser.password,
       },
     });
-    const body = await response.json();
+    const body = await safeJson(response);
     expect(body.responseCode).toBe(404);
     expect(body.message).toContain('User not found');
   });
@@ -35,7 +36,7 @@ test.describe('Account API lifecycle', () => {
     const createResponse = await request.post('/api/createAccount', {
       form: createAccountRequestBody,
     });
-    const createBody = await createResponse.json();
+    const createBody = await safeJson(createResponse);
     //console.log('createAccount response body:', createBody);
 
     expect(createBody.responseCode).toBe(201);
@@ -44,7 +45,7 @@ test.describe('Account API lifecycle', () => {
     const loginResponse = await request.post('/api/verifyLogin', {
       form: { email: uniqueEmail, password: env.testUserPassword },
     });
-    const loginBody = await loginResponse.json();
+    const loginBody = await safeJson(loginResponse);
     expect(loginBody.responseCode).toBe(200);
     expect(loginBody.message).toContain('exists');
 
@@ -52,7 +53,7 @@ test.describe('Account API lifecycle', () => {
     const deleteResponse = await request.delete('/api/deleteAccount', {
       form: { email: uniqueEmail, password: env.testUserPassword },
     });
-    const deleteBody = await deleteResponse.json();
+    const deleteBody = await safeJson(deleteResponse);
     expect(deleteBody.responseCode).toBe(200);
   });
   
@@ -65,8 +66,8 @@ test.describe('Account API lifecycle', () => {
         password: env.testUserPassword,
       },
     });
-    const body = await response.json();
-    
+    const body = await safeJson(response);
+
     expect(body.responseCode).toBe(404);
     expect(body.message.toLowerCase()).toContain('not found');
   });
