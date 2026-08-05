@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import userData from '../../test-data/users.json';
 import { env } from '../../config/env';
-import { safeJson } from '../../utils/api-response';
+import { fetchJson } from '../../utils/api-response';
 
 /**
  * Covers the account lifecycle documented at /api_list:
@@ -10,13 +10,14 @@ import { safeJson } from '../../utils/api-response';
  */
 test.describe('Account API lifecycle', () => {
   test('verifyLogin fails for a non-existent user (negative case)', async ({ request }) => {
-    const response = await request.post('/api/verifyLogin', {
-      form: {
-        email: userData.invalidUser.email,
-        password: userData.invalidUser.password,
-      },
-    });
-    const body = await safeJson(response);
+    const { body } = await fetchJson(() =>
+      request.post('/api/verifyLogin', {
+        form: {
+          email: userData.invalidUser.email,
+          password: userData.invalidUser.password,
+        },
+      }),
+    );
     expect(body.responseCode).toBe(404);
     expect(body.message).toContain('User not found');
   });
@@ -26,47 +27,49 @@ test.describe('Account API lifecycle', () => {
 
     // 1. Create account
     const createAccountRequestBody = {
-      ...userData.newUserTemplate,      
+      ...userData.newUserTemplate,
       email: uniqueEmail,
       password: env.testUserPassword,
       address1: userData.newUserTemplate.address1,
     };
     //console.log('createAccount request body:', createAccountRequestBody);
 
-    const createResponse = await request.post('/api/createAccount', {
-      form: createAccountRequestBody,
-    });
-    const createBody = await safeJson(createResponse);
+    const { body: createBody } = await fetchJson(() =>
+      request.post('/api/createAccount', { form: createAccountRequestBody }),
+    );
     //console.log('createAccount response body:', createBody);
 
     expect(createBody.responseCode).toBe(201);
 
     // 2. Verify the new account can log in
-    const loginResponse = await request.post('/api/verifyLogin', {
-      form: { email: uniqueEmail, password: env.testUserPassword },
-    });
-    const loginBody = await safeJson(loginResponse);
+    const { body: loginBody } = await fetchJson(() =>
+      request.post('/api/verifyLogin', {
+        form: { email: uniqueEmail, password: env.testUserPassword },
+      }),
+    );
     expect(loginBody.responseCode).toBe(200);
     expect(loginBody.message).toContain('exists');
 
     // 3. Clean up — delete the account so repeated test runs stay idempotent
-    const deleteResponse = await request.delete('/api/deleteAccount', {
-      form: { email: uniqueEmail, password: env.testUserPassword },
-    });
-    const deleteBody = await safeJson(deleteResponse);
+    const { body: deleteBody } = await fetchJson(() =>
+      request.delete('/api/deleteAccount', {
+        form: { email: uniqueEmail, password: env.testUserPassword },
+      }),
+    );
     expect(deleteBody.responseCode).toBe(200);
   });
-  
+
   test('deleteAccount fails for a non-existent email (negative case)', async ({ request }) => {
     const nonExistentEmail = `not-exist-${Date.now()}@example.com`;
 
-    const response = await request.delete('/api/deleteAccount', {
-      form: {
-        email: nonExistentEmail,
-        password: env.testUserPassword,
-      },
-    });
-    const body = await safeJson(response);
+    const { body } = await fetchJson(() =>
+      request.delete('/api/deleteAccount', {
+        form: {
+          email: nonExistentEmail,
+          password: env.testUserPassword,
+        },
+      }),
+    );
 
     expect(body.responseCode).toBe(404);
     expect(body.message.toLowerCase()).toContain('not found');
