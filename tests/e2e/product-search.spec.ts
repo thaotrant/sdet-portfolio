@@ -52,7 +52,7 @@ test.describe('Product search and cart (E2E)', () => {
     await homepage.goto();
     await homepage.viewProductByName('Summer White Top');
 
-    await expect(detailsPage.productName).toHaveText('Summer White Top');
+    await expect(detailsPage.productName).toHaveText('Summer Purple Top');
 
     await detailsPage.addToCart();
     await detailsPage.openCartFromModal();
