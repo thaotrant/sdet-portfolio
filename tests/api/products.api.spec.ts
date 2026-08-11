@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { safeJson } from '../../utils/api-response';
+import { fetchJson } from '../../utils/api-response';
 
 /**
  * API layer tests — fastest, most stable layer of the pyramid.
@@ -7,18 +7,15 @@ import { safeJson } from '../../utils/api-response';
  */
 test.describe('Products API', () => {
   test('GET /api/productsList returns 200 and a product array', async ({ request }) => {
-    const response = await request.get('/api/productsList');
+    const { response, body } = await fetchJson(() => request.get('/api/productsList'));
     expect(response.status()).toBe(200);
-
-    const body = await safeJson(response);
     expect(body.responseCode).toBe(200);
     expect(Array.isArray(body.products)).toBeTruthy();
     expect(body.products.length).toBeGreaterThan(0);
   });
 
   test('POST /api/productsList is not supported (405) — negative/method test', async ({ request }) => {
-    const response = await request.post('/api/productsList');
-    const body = await safeJson(response);
+    const { body } = await fetchJson(() => request.post('/api/productsList'));
     // API documents this as a 200-wrapped 405 message rather than an HTTP 405 —
     // asserting on the documented responseCode/message, not just HTTP status.
     expect(body.responseCode).toBe(405);
@@ -26,24 +23,21 @@ test.describe('Products API', () => {
   });
 
   test('POST /api/searchProduct returns matching products', async ({ request }) => {
-    const response = await request.post('/api/searchProduct', {
-      form: { search_product: 'top' },
-    });
-    const body = await safeJson(response);
+    const { body } = await fetchJson(() =>
+      request.post('/api/searchProduct', { form: { search_product: 'top' } }),
+    );
     expect(body.responseCode).toBe(200);
     expect(Array.isArray(body.products)).toBeTruthy();
   });
 
   test('POST /api/searchProduct without param returns a bad-request message', async ({ request }) => {
-    const response = await request.post('/api/searchProduct', { form: {} });
-    const body = await safeJson(response);
+    const { body } = await fetchJson(() => request.post('/api/searchProduct', { form: {} }));
     expect(body.responseCode).toBe(400);
     expect(body.message.toLowerCase()).toContain('missing');
   });
 
   test('GET /api/brandsList returns 200 and a brand array', async ({ request }) => {
-    const response = await request.get('/api/brandsList');
-    const body = await safeJson(response);
+    const { body } = await fetchJson(() => request.get('/api/brandsList'));
     expect(body.responseCode).toBe(200);
     expect(Array.isArray(body.brands)).toBeTruthy();
   });
