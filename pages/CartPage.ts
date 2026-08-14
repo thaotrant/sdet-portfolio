@@ -31,7 +31,15 @@ export class CartPage {
     await this.removeButtons.first().click();
   }
 
+  // Flaky on purpose: click, then assume 1s is "enough time" for the row to disappear.
   async removeProduct(name: string) {
+    const row = this.getCartRows().filter({ hasText: name }).first();
+    await row.locator('.cart_quantity_delete').click();
+    await this.page.waitForTimeout(1000);
+  }
+
+  // Stable: relies on Playwright's auto-waiting instead of a fixed timeout.
+  async removeProductStable(name: string) {
     const row = this.getCartRows().filter({ hasText: name }).first();
     await row.locator('.cart_quantity_delete').click();
   }
@@ -46,3 +54,4 @@ export class CartPage {
   }
   
 }
+ 
