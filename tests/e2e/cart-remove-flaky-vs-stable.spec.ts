@@ -20,6 +20,11 @@ test.describe('Remove from cart: flaky wait vs stable auto-wait', () => {
   });
 
   test('FLAKY: removeProduct() + one-shot check', async ({ page }) => {
+    // Intentionally flaky by design (fixed 1000ms wait racing 0-1500ms
+    // injected latency) — skipped in CI so it can't flip the merge gate red.
+    // Run it locally to see the point: npx playwright test tests/e2e/cart-remove-flaky-vs-stable.spec.ts --repeat-each=10
+    test.skip(!!process.env.CI, 'Intentionally flaky demo test — not part of the CI gate');
+
     const productsPage = new ProductsPage(page);
     const cartPage = new CartPage(page);
 
